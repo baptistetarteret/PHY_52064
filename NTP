@@ -1,0 +1,71 @@
+sudo timedatectl set-timezone Europe/Paris
+sudo systemctl status systemd-timesyncd.service
+
+sudo apt-get update
+sudo apt-get install systemd-timesyncd
+
+sudo systemctl enable --now systemd-timesyncd
+sudo nano /etc/systemd/timesyncd.conf
+
+
+sudo timedatectl set-ntp true
+
+
+sudo nano /etc/systemd/timesyncd.conf
+[Time]
+NTP=ntp1.unistra.fr, ntp2.unistra.fr
+#FallbackNTP=0.debian.pool.ntp.org 1.debian.pool.ntp.org 2.debian.pool.ntp.org 3.debian.pool.ntp.org
+#RootDistanceMaxSec=5
+#PollIntervalMinSec=32
+#PollIntervalMaxSec=2048
+#ConnectionRetrySec=30
+#SaveIntervalSec=60
+
+
+
+phy@phy:~ $ timedatectl show-timesync --all
+LinkNTPServers=
+SystemNTPServers=ntp1.unistra.fr, ntp2.unistra.fr
+RuntimeNTPServers=
+FallbackNTPServers=0.debian.pool.ntp.org 1.debian.pool.ntp.org 2.debian.pool.ntp.org 3.debian.pool.ntp.org
+ServerName=ntp2.unistra.fr
+ServerAddress=130.79.14.179
+RootDistanceMaxUSec=5s
+PollIntervalMinUSec=32s
+PollIntervalMaxUSec=34min 8s
+PollIntervalUSec=1min 4s
+Frequency=0
+phy@phy:~ $
+
+
+timedatectl
+
+
+
+sudo apt install chrony
+sudo systemctl stop systemd-timesyncd
+sudo systemctl disable systemd-timesyncd
+sudo systemctl enable chronyd
+sudo systemctl start chronyd
+
+sudo systemctl status chrony
+chronyc sources -v
+chronyc sourcestats -v
+
+sudo nano /etc/chrony/chrony.conf
+
+
+
+phy@phy:/etc/chrony/sources.d $ sudo nano /etc/chrony/sources.d/unistra.sources
+"""   GNU nano 8.4                                            /etc/chrony/sources.d/unistra.sources
+# Serveurs NTP français Stratum 1-2 fixes
+server ntp.obspm.fr iburst minpoll 4 maxpoll 5 prefer
+server ntp.midway.ovh iburst minpoll 4 maxpoll 5
+server ntp.lothaire.net iburst minpoll 4 maxpoll 5
+server time.cloudflare.com iburst minpoll 4 maxpoll 5
+"""
+
+phy@phy:/etc/chrony/sources.d $ sudo chronyc reload sources
+200 OK
+phy@phy:/etc/chrony/sources.d $ chronyc sources -v
+chronyc tracking
