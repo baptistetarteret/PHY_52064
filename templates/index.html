@@ -1,68 +1,72 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>PI 5 - Ultra FFT Analyzer</title>
+    <title>INMP441 Precise Analyzer</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { background: #0a0a0a; color: #00ff00; font-family: 'Courier New', monospace; margin: 20px; }
-        .stats { display: flex; justify-content: space-around; margin-bottom: 10px; font-size: 1.2em; color: #00ccff; }
+        body { background: #050505; color: #00ff41; font-family: 'Courier New', monospace; text-align: center; }
+        .info { color: #00ccff; margin-bottom: 10px; font-size: 0.9em; }
+        canvas { max-width: 95%; margin: auto; border: 1px solid #222; }
     </style>
 </head>
 <body>
-    <div class="stats">
-        <div>RATE: 48000Hz</div>
-        <div>RES: 11.7Hz/bin</div>
-        <div>SCALE: dBFS (Calibrated)</div>
-    </div>
-    <canvas id="ultraChart" width="1200" height="500"></canvas>
+    <h1>SPECTRE FFT CALIBRÉ (dBFS)</h1>
+    <div class="info">48kHz | 11.7Hz/bin | HPF 60Hz-15kHz</div>
+    <canvas id="chart"></canvas>
 
     <script>
-        const ctx = document.getElementById('ultraChart').getContext('2d');
+        const ctx = document.getElementById('chart').getContext('2d');
         let chart;
 
-        async function init() {
-            const initial = await (await fetch('/data')).json();
+        async function start() {
+            const res = await fetch('/data');
+            const init = await res.json();
+
             chart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: initial.labels,
+                    labels: init.labels,
                     datasets: [{
-                        label: 'Spectrum (dBFS)',
-                        data: initial.db,
-                        borderColor: '#00ff00',
+                        label: 'Niveau (dBFS)',
+                        data: init.db,
+                        borderColor: '#00ff41',
                         borderWidth: 1,
-                        fill: false,
-                        pointRadius: 0 // Optimisation : ne pas dessiner les points
+                        pointRadius: 0,
+                        fill: false
                     }]
                 },
                 options: {
-                    animation: false, // Vital pour la fluidité
-                    parsing: false,   // Accélère le rendu des gros datasets
-                    spanGaps: true,
+                    animation: false,
                     scales: {
-                        y: { min: -100, max: 0, grid: { color: '#333' } },
                         x: { 
-                            type: 'logarithmic', // Pour mieux voir les basses fréquences (HPF)
-                            min: 60,  // Coupure physique du INMP441
-                            max: 16000, 
-                            grid: { color: '#333' } 
+                            type: 'logarithmic', 
+                            min: 50, 
+                            max: 18000,
+                            ticks: { color: '#00ff41' },
+                            grid: { color: '#111' }
+                        },
+                        y: { 
+                            min: -100, 
+                            max: 0,
+                            ticks: { color: '#00ff41' },
+                            grid: { color: '#222' }
                         }
                     }
                 }
             });
-            update();
+            refresh();
         }
 
-        async function update() {
+        async function refresh() {
             try {
                 const response = await fetch('/data');
-                const data = await response.json();
-                chart.data.datasets[0].data = data.db;
-                chart.update('none'); // Update sans animation
-            } catch (e) {}
-            requestAnimationFrame(update);
+                const d = await response.json();
+                chart.data.datasets[0].data = d.db;
+                chart.update('none');
+            } catch(e) {}
+            requestAnimationFrame(refresh);
         }
-        init();
+        start();
     </script>
 </body>
 </html>
