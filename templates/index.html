@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PI 5 - Ultra FFT Analyzer</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { background: #0a0a0a; color: #00ff00; font-family: 'Courier New', monospace; margin: 20px; }
+        .stats { display: flex; justify-content: space-around; margin-bottom: 10px; font-size: 1.2em; color: #00ccff; }
+    </style>
+</head>
+<body>
+    <div class="stats">
+        <div>RATE: 48000Hz</div>
+        <div>RES: 11.7Hz/bin</div>
+        <div>SCALE: dBFS (Calibrated)</div>
+    </div>
+    <canvas id="ultraChart" width="1200" height="500"></canvas>
+
+    <script>
+        const ctx = document.getElementById('ultraChart').getContext('2d');
+        let chart;
+
+        async function init() {
+            const initial = await (await fetch('/data')).json();
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: initial.labels,
+                    datasets: [{
+                        label: 'Spectrum (dBFS)',
+                        data: initial.db,
+                        borderColor: '#00ff00',
+                        borderWidth: 1,
+                        fill: false,
+                        pointRadius: 0 // Optimisation : ne pas dessiner les points
+                    }]
+                },
+                options: {
+                    animation: false, // Vital pour la fluidité
+                    parsing: false,   // Accélère le rendu des gros datasets
+                    spanGaps: true,
+                    scales: {
+                        y: { min: -100, max: 0, grid: { color: '#333' } },
+                        x: { 
+                            type: 'logarithmic', // Pour mieux voir les basses fréquences (HPF)
+                            min: 60,  // Coupure physique du INMP441
+                            max: 16000, 
+                            grid: { color: '#333' } 
+                        }
+                    }
+                }
+            });
+            update();
+        }
+
+        async function update() {
+            try {
+                const response = await fetch('/data');
+                const data = await response.json();
+                chart.data.datasets[0].data = data.db;
+                chart.update('none'); // Update sans animation
+            } catch (e) {}
+            requestAnimationFrame(update);
+        }
+        init();
+    </script>
+</body>
+</html>
