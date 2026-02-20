@@ -1,0 +1,17 @@
+echo "dtparam=i2s=on" | sudo tee -a /boot/firmware/config.txt
+
+
+dans la config boot/firmware 
+[all]
+# Active l'interface I2S
+dtparam=i2s=on
+
+# Charge l'overlay pour micro I2S (plus stable sur Pi 5)
+dtoverlay=googlevoicehat-soundcard
+
+# Garde l'audio global activé pour l'HDMI/Bluetooth
+dtparam=audio=on
+
+
+verifier la detection
+arecord -l
