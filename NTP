@@ -53,11 +53,15 @@ chronyc sources -v
 chronyc sourcestats -v
 
 sudo nano /etc/chrony/chrony.conf
+# Mets un # devant :
+# pool 2.debian.pool.ntp.org iburst
 
 
 
-phy@phy:/etc/chrony/sources.d $ sudo nano /etc/chrony/sources.d/unistra.sources
-"""   GNU nano 8.4                                            /etc/chrony/sources.d/unistra.sources
+
+
+phy@phy:/etc/chrony/sources.d $ sudo nano /etc/chrony/sources.d/sources_chrony.sources
+"""   GNU nano 8.4                                            /etc/chrony/sources.d/sources_chrony.sources
 # Serveurs NTP français Stratum 1-2 fixes
 server ntp.obspm.fr iburst minpoll 4 maxpoll 5 prefer
 server ntp.midway.ovh iburst minpoll 4 maxpoll 5

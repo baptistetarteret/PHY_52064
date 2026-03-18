@@ -7,11 +7,23 @@ wifi : iPhone de Baptiste
     ip : pas sur regarde sur avast
 
 
-phy@phy:~ $ sudo nmcli con mod "Wired connection 1" \
+phy@phy:~ $ sudo nmcli con mod "eth0" \
   ipv4.method manual \
   ipv4.addresses 192.168.137.3/24 \
   ipv4.gateway 192.168.137.1 \
   ipv4.dns 8.8.8.8
 
-sudo nmcli con up "Wired connection 1"
+sudo nmcli con up "eth0"
+
+
+
+
+
+#pour les pi 3 :
+
+sudo nmcli con add type ethernet ifname eth0 con-name eth0 ipv4.method manual ipv4.addresses 192.168.137.4/24 ipv4.gateway 192.168.137.1 ipv4.dns 8.8.8.8
+sudo nmcli con up eth0
+
+
+
 

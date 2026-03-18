@@ -1,0 +1,1 @@
+Invoke-WebRequest -Uri "http://172.20.10.10:5000/timestamp" -Method POST -ContentType "application/json" -Body '{"timestamp": 1741862551.853}'

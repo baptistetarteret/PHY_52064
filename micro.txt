@@ -15,3 +15,62 @@ dtparam=audio=on
 
 verifier la detection
 arecord -l
+
+
+
+
+[all]
+# Active l'interface I2S
+dtparam=i2s=on
+
+# Charge le driver générique pour les micros I2S (ex: INMP441)
+dtoverlay=i2s-mems
+
+# Garde l'audio de bord (Jack/HDMI) activé si tu en as besoin
+dtparam=audio=on
+
+
+
+
+[all]
+dtparam=i2s=on
+dtoverlay=googlevoicehat-soundcard
+dtparam=audio=on
+
+
+
+https://makersportal.com/blog/recording-stereo-audio-on-a-raspberry-pi
+
+
+arecord --device=hw:2,0 --rate=16000 --channels=2 --format=S32_LE --duration=3 test.wav
+aplay test.wav
+
+
+
+
+pip install pyaudio matplotlib numpy --break-system-packages
+
+
+
+listons les devices disponibles :
+bashpython3 -c "
+import pyaudio
+p = pyaudio.PyAudio()
+for i in range(p.get_device_count()):
+    info = p.get_device_info_by_index(i)
+    if info['maxInputChannels'] > 0:
+        print(f'Index {i}: {info[\"name\"]} | ch={info[\"maxInputChannels\"]} | rate={info[\"defaultSampleRate\"]}')
+p.terminate()
+"
+
+
+
+arecord --device=hw:2,0 --rate=48000 --channels=2 --format=S32_LE --quiet - | python3 -c "
+import sys, numpy as np
+data = sys.stdin.buffer.read(4096*2*4)
+s = np.frombuffer(data, dtype=np.int32).astype(np.float32)
+print('Samples lus:', len(s))
+print('Max valeur:', np.max(np.abs(s)))
+print('Canal gauche RMS:', np.sqrt(np.mean(s[::2]**2)))
+print('Canal droit RMS:', np.sqrt(np.mean(s[1::2]**2)))
+"
